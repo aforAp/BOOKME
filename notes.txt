@@ -1,0 +1,1 @@
+index: true it will helps to make the search faster compare to the normal search.
