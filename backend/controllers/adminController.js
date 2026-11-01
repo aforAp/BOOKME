@@ -121,16 +121,15 @@ const isAdminPasswordValid = async (password) => {
 export const loginAdmin = async (req, res) => {
     try {
       const {email, password} = req.body;
-
       const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
 
-      if(!adminEmail || (!process.env.ADMIN_PASSWORD && !process.env.ADMIN_PASSWORD_HASH)) {
+      if(!adminEmail || (!process.env.ADMIN_PASSWORD || !process.env.ADMIN_PASSWORD_HASH)) {
         return res.status(503).json({
             message: 'Admin login is not configured'
         });
       }
 
-      if(!email || !password || !email.toLowerCase().trim() !== adminEmail) {
+      if(!email || !password || email.toLowerCase().trim() !== adminEmail) {
         return res.status(401).json({
             message: 'Invalid admin credentials'
         });

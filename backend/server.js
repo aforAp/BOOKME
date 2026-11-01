@@ -10,7 +10,7 @@ import integrationRoutes from "./routes/integrationRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import publicRoutes from "./routes/publicRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
-
+import bcrypt from "bcryptjs";
 const PORT = process.env.PORT || 5000;
 const app = express();
 
