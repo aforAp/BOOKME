@@ -17,7 +17,7 @@ import logo from "../../public/logo.png";
 import { adminDashboardPageStyles as s } from "../assets/dummyStyles";
 
 const formatMoney = (amount = 0, currency = "INR") =>
-  new Intl.NumberFormat("en-IN", { styles: "currency", currency }).format(
+  new Intl.NumberFormat("en-IN", { style: "currency", currency }).format(
     amount / 100,
   );
 
