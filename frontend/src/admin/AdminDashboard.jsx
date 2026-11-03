@@ -13,7 +13,7 @@ import {
   UserCheck,
   ShieldCheck,
 } from "lucide-react";
-import logo from "../../public/logo.png";
+import { bookmeLogo as logo } from "../assets/images.js";
 import { adminDashboardPageStyles as s } from "../assets/dummyStyles";
 
 const formatMoney = (amount = 0, currency = "INR") =>

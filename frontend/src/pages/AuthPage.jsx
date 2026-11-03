@@ -1,182 +1,193 @@
-import {useState, useEffect} from 'react';
-import {Link, useLocation, useNavigate} from "react-router-dom";
-import {login, register, requestRegistrationOtp, verifyRegistrationOtp} from "../api/auth.js";
-import {User, Mail, Lock, Building2, ArrowRight, CalendarDays, Shield, Zap, BadgeCheck} from "lucide-react";
-import { authPageStyles as s } from '../assets/dummyStyles.jsx';
-import logo from "../../public/logo.png";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  login,
+  register,
+  requestRegistrationOtp,
+  verifyRegistrationOtp,
+} from "../api/auth.js";
+import {
+  User,
+  Mail,
+  Lock,
+  Building2,
+  ArrowRight,
+  CalendarDays,
+  Shield,
+  Zap,
+  BadgeCheck,
+} from "lucide-react";
+import { authPageStyles as s } from "../assets/dummyStyles.jsx";
+import { bookmeLogo as logo } from "../assets/images.js";
 const initialForm = {
-    name: "",
-    email: "",
-    password: "",
-    businessName: "",
-    emailOtp: "",
-}
+  name: "",
+  email: "",
+  password: "",
+  businessName: "",
+  emailOtp: "",
+};
 
 export default function AuthPage() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [mode, setMode] = useState("login");
-    const [form, setForm] = useState(initialForm);
-    const [otpLoading, setOtpLoading] = useState(false);
-    const [otpSentTo, setOtpSentTo] = useState("");
-    const [otpVerified, setOtpVerified] = useState(false);
-    const [message, setMessage] = useState("");
-    const [otpCooldown, setOtpCooldown] = useState(0);
-    const [loading, setLoading] = useState(false);
-    const isRegister = mode === 'register';
-    const fromLocation = location.state?.from;
-    const redirectTo = fromLocation ? `${fromLocation.pathname}${fromLocation.search || ""}`: "/profile";
-    
-    useEffect(() => {
-        if(otpCooldown <= 0) return;
-        const interval = setInterval(() => {
-            setOtpCooldown((prev) => {
-                if(prev <= 1) {
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prev - 1;
-            });
-            return () => clearInterval(interval);
-        }, 1000);
-    },  [otpCooldown]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [mode, setMode] = useState("login");
+  const [form, setForm] = useState(initialForm);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpSentTo, setOtpSentTo] = useState("");
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [message, setMessage] = useState("");
+  const [otpCooldown, setOtpCooldown] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const isRegister = mode === "register";
+  const fromLocation = location.state?.from;
+  const redirectTo = fromLocation
+    ? `${fromLocation.pathname}${fromLocation.search || ""}`
+    : "/profile";
 
-    const handleChange = async (event) => {
-        const {name, value} = event.target;
-
-        if(name === "emailOtp") {
-            const digitsOnly = value.replace(/\D/g, "").slice(0, 6);
-            setForm((prev) => ({...prev, emailOtp: digitsOnly}));
-            if(otpVerified) setOtpVerified(false);
-            if(digitsOnly.length === 6 && form.email) {
-                try {
-                  await verifyRegistrationOtp({
-                    email: form.email,
-                    emailOtp: digitsOnly
-                  });
-                  setOtpVerified(true);
-                  setMessage('Email verified successfully');
-                } catch(error) {
-                  setOtpVerified(false);
-                  setMessage(error.response?.data?.message || 'Invalid OTP');
-                }
-                return;
-            }
-
-            if(name === 'email') {
-                setOtpVerified(false);
-                setOtpSentTo("");
-                setForm((prev) => ({
-                    ...prev,
-                    email: value,
-                    emailOtp: ""
-                }));
-                return;
-            }
-            setForm((prev) => ({
-                prev,
-                [name]: value
-            }));
-        };
-
-    }
-     const sendOtp = async () => {
-            if(!form.email) {
-                setMessage('Enter your email first');
-                return;
-            }
-            setOtpLoading(true);
-            setMessage("");
-
-            try{
-                await requestRegistrationOtp(form.email);
-                setOtpSentTo(form.email.trim().toLowerCase());
-                setOtpVerified(false);
-                setOtpCooldown(30);
-                setMessage('Verification code send to your email');
-            }
-            catch (error) {
-                setMessage(error.response?.data?.message || 'Could not send code');
-            } finally {
-                setOtpLoading(false);
-            }
-        };
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setLoading(true);
-        setMessage("");
-
-        try {
-            const payload = isRegister
-            ? form : {email: form.email, password: form.password};
-            const {data} = await (isRegister ? register(payload): login(payload));
-
-            if(data.token) {
-                localStorage.setItem("token", data.token);
-                navigate(redirectTo, {replace: true});
-            }
-        }  catch (error) {
-            setMessage(error.response?.data?.message || "Authentication Failed");
-        } finally {
-            setLoading(false);
+  useEffect(() => {
+    if (otpCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setOtpCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
         }
-    };
+        return prev - 1;
+      });
+    }, 1000);
+     return () => clearInterval(interval);
+  }, [otpCooldown]);
 
-    return (
-        <div className={s.pageBg}>
-            <div className={s.gridContainer}>
-                {/*Left branding */}
-                <section className={s.brandSection}>
-                    <div className={s.logoRow}>
-                        <img src={logo} className={s.logoImg} />
-                        <span className={s.brandName}>
-                            BookMe
-                        </span>
-                    </div>
-                    <h1 className={s.mainHeading}>
-                        A calm booking for{" "}
-                        <span className={s.gradientText}>email businesses.</span>
-                    </h1>
-                    <p className={s.subtitle}>
-                        Create your business profile, add services, set availability, and share one clean booking link.
-                    </p>
-                    <div className={s.featureGrid}>
-                        <div className={s.featureCard}>
-                            <div className={s.featureIconPurple}>
-                                <CalendarDays className={s.featureIconPurple} />
-                            </div>
-                            <div>
-                                <p className={s.featureTitle}>
-                                    Easy Setup
-                                </p>
-                                <p className={s.featureDesc}>Get Started in minutes</p>
-                            </div>
-                        </div>
-                         <div className={s.featureCard}>
-                            <div className={s.featureIconWrapEmerald}>
-                                <Shield className={s.featureIconWrapEmerald} />
-                            </div>
-                            <div>
-                                <p className={s.featureTitle}>
-                                    Secure
-                                </p>
-                                <p className={s.featureDesc}>Stripe-powered payments</p>
-                            </div>
-                        </div>
-                         <div className={s.featureCard}>
-                            <div className={s.featureIconWrapAmber}>
-                                <Zap className={s.featureIconAmber} />
-                            </div>
-                            <div>
-                                <p className={s.featureTitle}>
-                                    Fast
-                                </p>
-                                <p className={s.featureDesc}>Instent booking links</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                   {/* Right: auth form */}
+  const handleChange = async (event) => {
+    const { name, value } = event.target;
+
+    if (name === "emailOtp") {
+      const digitsOnly = value.replace(/\D/g, "").slice(0, 6);
+      setForm((prev) => ({ ...prev, emailOtp: digitsOnly }));
+      if (otpVerified) setOtpVerified(false);
+
+      if (digitsOnly.length === 6 && form.email) {
+        try {
+          await verifyRegistrationOtp({
+            email: form.email,
+            emailOtp: digitsOnly,
+          });
+          setOtpVerified(true);
+          setMessage("Email verified successfully");
+        } catch (error) {
+          setOtpVerified(false);
+          setMessage(error.response?.data?.message || "Invalid OTP");
+        }
+      }
+      return;
+    }
+
+    if (name === "email") {
+      setOtpVerified(false);
+      setOtpSentTo("");
+      setForm((prev) => ({
+        ...prev,
+        email: value,
+        emailOtp: "",
+      }));
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+  const sendOtp = async () => {
+    if (!form.email) {
+      setMessage("Enter your email first");
+      return;
+    }
+    setOtpLoading(true);
+    setMessage("");
+
+    try {
+      await requestRegistrationOtp(form.email);
+      setOtpSentTo(form.email.trim().toLowerCase());
+      setOtpVerified(false);
+      setOtpCooldown(30);
+      setMessage("Verification code send to your email");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Could not send code");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const payload = isRegister
+        ? form
+        : { email: form.email, password: form.password };
+      const { data } = await (isRegister ? register(payload) : login(payload));
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        navigate(redirectTo, { replace: true });
+      }
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Authentication Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className={s.pageBg}>
+      <div className={s.gridContainer}>
+        {/*Left branding */}
+        <section className={s.brandSection}>
+          <div className={s.logoRow}>
+            <img src={logo} className={s.logoImg} />
+            <span className={s.brandName}>BookMe</span>
+          </div>
+          <h1 className={s.mainHeading}>
+            A calm booking for{" "}
+            <span className={s.gradientText}>email businesses.</span>
+          </h1>
+          <p className={s.subtitle}>
+            Create your business profile, add services, set availability, and
+            share one clean booking link.
+          </p>
+          <div className={s.featureGrid}>
+            <div className={s.featureCard}>
+              <div className={s.featureIconPurple}>
+                <CalendarDays className={s.featureIconPurple} />
+              </div>
+              <div>
+                <p className={s.featureTitle}>Easy Setup</p>
+                <p className={s.featureDesc}>Get Started in minutes</p>
+              </div>
+            </div>
+            <div className={s.featureCard}>
+              <div className={s.featureIconWrapEmerald}>
+                <Shield className={s.featureIconWrapEmerald} />
+              </div>
+              <div>
+                <p className={s.featureTitle}>Secure</p>
+                <p className={s.featureDesc}>Stripe-powered payments</p>
+              </div>
+            </div>
+            <div className={s.featureCard}>
+              <div className={s.featureIconWrapAmber}>
+                <Zap className={s.featureIconAmber} />
+              </div>
+              <div>
+                <p className={s.featureTitle}>Fast</p>
+                <p className={s.featureDesc}>Instent booking links</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        {/* Right: auth form */}
         <section className={s.formCard}>
           <h2 className={s.formHeading}>
             {isRegister ? "Create account" : "Welcome back"}
@@ -321,10 +332,14 @@ export default function AuthPage() {
           </button>
         </section>
         <div className={s.footerLinks}>
-            <Link to="/privacy" className={s.footerLink}>Privacy Policy</Link>
-            <Link to="/terms" className={s.footerLink}>Terms of Services</Link>
+          <Link to="/privacy" className={s.footerLink}>
+            Privacy Policy
+          </Link>
+          <Link to="/terms" className={s.footerLink}>
+            Terms of Services
+          </Link>
         </div>
-            </div>
-        </div>
-    )
-} 
+      </div>
+    </div>
+  );
+}

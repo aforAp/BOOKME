@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminLogin } from "../api/admin.js";
-import logo from "../../public/logo.png";
+import { bookmeLogo as logo } from "../assets/images.js";
 import { adminLoginPageStyles as s } from "../assets/dummyStyles.jsx";
 
 export default function AdminLoginPage() {

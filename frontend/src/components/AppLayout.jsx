@@ -1,10 +1,9 @@
-import logo from "logo.png";
-import hexagonLogo from "Hexagon Logo.png";
+import { bookmeLogo as logo, hexagonLogo } from "../assets/images.js";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { getMe } from "../api/auth";
 import { appLayoutStyles as s } from "../assets/dummyStyles";
-import LogOut, { ChevronDown, SquareMenu, X } from "lucide-react";
+import  {LogOut, ChevronDown, SquareMenu, X } from "lucide-react";
 const navItems = [
   { to: "/", label: "Dashboard" },
   { to: "/profile", label: "Profile" },
@@ -94,8 +93,12 @@ export default function AppLayout({ children }) {
                         Logout();
                       }}
                     >
+                      <div className="flex items-center ml-10 justify-between">
+
+                      
                       <LogOut className={s.logoutIcon} />
                       Log out
+                      </div>
                     </button>
                   </div>
                 )}
