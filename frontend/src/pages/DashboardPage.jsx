@@ -895,7 +895,7 @@ export default function DashboardPage() {
                 <stat.icon className="w-[22px] h-[22px]" />
               </div>
               <div>
-                <p className={s.statLabel}>{stat.label}</p>
+                <label className={s.statLabel}>{stat.label}</label>
                 <h2 className={s.statValue}>{stat.value}</h2>
               </div>
             </div>

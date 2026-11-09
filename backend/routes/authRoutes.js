@@ -8,7 +8,7 @@ router.post('/register', registerUser);
 router.post('/register/request-otp', requestRegistrationOTP);
 router.post('/register/verify-otp', verifyRegistrationOTP);
 router.post('/login', loginUser);
-router.post('/me', auth, getMe);
-router.post('/profile', auth, updateProfile);
+router.get('/me', auth, getMe);
+router.put('/profile', auth, updateProfile);
 
 export default router;

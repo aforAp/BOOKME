@@ -2,12 +2,10 @@ import Service from "../models/Service.js";
 
 export const listServices = async (req, res) => {
     try {
-         const services = await Service({
-            userId: req.user.Id,
-            isDeleted: {
-                $ne: true
-            }
-         }).toSorted({ createdAt: -1});
+         const services = await Service.find({
+            userId: req.user.id,
+            isDeleted: { $ne: true },
+         }).sort({ createdAt: -1 });
          res.json({services});
     } catch(error) {
       res.status(500).json({message: 'Server error', error: error.message});
@@ -50,15 +48,14 @@ export const updateService = async (req, res) => {
             }
         });
 
-        const service = await Service.findOneAndUpdate({
-            _id: req.params.id, userId: req.user.id, isDeleted: {$ne: true}},
+        const service = await Service.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user.id, isDeleted: { $ne: true } },
             updates,
-            {new: true}
-            //it will returns the updated documents {new: true}
+            { new: true, runValidators: true }
         );
 
         if(!service) {
-            return res.stauts(404).json({
+            return res.status(404).json({
                 message: 'Service not found'
             });
         }
@@ -72,9 +69,10 @@ export const updateService = async (req, res) => {
 export const deleteService = async (req, res) => {
     try {
          const service = await Service.findOneAndUpdate(
-            {_id: req.params.id, userid: req.user.id, isDeleted: {$ne: true}},
-        {isDeleted: true, isActive: false},
-        {new: true});
+            { _id: req.params.id, userId: req.user.id, isDeleted: { $ne: true } },
+            { isDeleted: true, isActive: false },
+            { new: true }
+         );
 
         if(!service) {
             return res.status(404).json({message: "service could not found"})}

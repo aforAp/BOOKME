@@ -3,11 +3,11 @@ import {BadgeCheck, AlertCircle} from "lucide-react";
 
 const ToastContext = createContext(null);
 
-export const userToast = () => {
+export const useToast = () => {
     const context = useContext(ToastContext);
 
     if(!context) {
-        throw new Error("UserToast must be used within a ToastProvider");
+        throw new Error("Use Toast must be used within a ToastProvider");
     }
     return context;
 };

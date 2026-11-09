@@ -7,6 +7,9 @@ import ProfilePage from "./pages/ProfilePage";
 import BookingPage from "./pages/BookingsPage";
 import BookingCancelledPage from "./pages/BookingCancelledPage";
 import BookingSuccessPage from "./pages/BookingSuccessPage";
+import AvailabilityPage from "./pages/AvailabilityPage";
+import ServicePage from "./pages/ServicePage";
+
 const ProtectedRoute = ({children}) => {
   const location = useLocation();
   const hasToken = Boolean(localStorage.getItem('token'));
@@ -41,6 +44,8 @@ export default function App() {
       <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/login" element={<PublicOnlyRoute><AuthPage /></PublicOnlyRoute>} />
+      <Route path="/availability" element={<ProtectedRoute><AvailabilityPage /></ProtectedRoute>} />
+      <Route path="/services" element={<ProtectedRoute><ServicePage /></ProtectedRoute>} />
       <Route path="/bookings" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
       <Route path="/booking/success" element={<BookingSuccessPage />} />
       <Route path="/booking/cancelled" element={<BookingCancelledPage />} />
